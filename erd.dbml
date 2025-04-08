@@ -1,0 +1,32 @@
+Table users {
+  id varchar [pk]
+  email varchar [unique, not null]
+  name varchar [not null]
+  phone varchar
+  password_has varchar [not null]
+  avatar varchar
+  created_at datetime [default: `CURRENT_TIMESTAMP`]
+  updated_at datetime
+}
+
+Table files {
+  id varchar [pk]
+  file_name varchar [not null]
+  file_url varchar [not null]
+  uploaded_by varchar [not null, ref: > users.id]
+  uploaded_at datetime [default: `CURRENT_TIMESTAMP`]
+}
+
+
+Table sessions {
+  id varchar [pk]
+  user_id varchar [not null, ref: > users.id]
+  token varchar [not null]
+  device varchar
+  ip_address varchar
+  user_agent text
+  is_active boolean [default: true]
+  created_at datetime [default: `CURRENT_TIMESTAMP`]
+  last_accessed datetime [default: `CURRENT_TIMESTAMP`]
+  expires_at datetime [not null]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "hris-arg",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "storage": "node storage_server.js",
+    "migrate:up": "drizzle-kit up",
+    "migrate:generate": "drizzle-kit generate",
+    "migrate:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.9.0",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.0",
+    "firebase": "^11.4.0",
+    "firebase-admin": "^13.2.0",
+    "jose": "^6.0.8",
+    "live-server": "^1.2.2",
+    "lucide-react": "^0.482.0",
+    "next": "15.2.1",
+    "pg": "^8.14.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^5.0.2",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^20",
+    "@types/pg": "^8.11.11",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "daisyui": "^5.0.4",
+    "drizzle-kit": "^0.30.5",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.19.3",
+    "typescript": "^5"
+  }
+}
