@@ -2,11 +2,13 @@
 
 import { writeFile } from "fs/promises";
 import path from "path";
-import { db, users, files } from "@/services/db";
+import { db, schema } from "@/services/db";
 import { eq } from "drizzle-orm";
 import { verifySession } from "@/libs/dal";
 import { generateUUID } from "@/libs/helper";
 import { FormState } from "@/libs/definitions";
+
+const { users, files } = schema;
 
 interface prevProp {
   error: boolean;
@@ -54,7 +56,7 @@ export async function uploadAvatar(
       .update(users)
       .set({
         avatar: `${storageUrl}/avatars/${formattedFileName}`,
-        updated_at: new Date(),
+        updatedAt: new Date(),
       })
       .where(eq(users.id, session.userId as string));
 
@@ -109,10 +111,10 @@ export async function uploadFile(
     // Insert file record into database
     await db.insert(files).values({
       id: generateUUID(),
-      uploaded_by: session.userId as string,
-      file_name: formattedFileName,
-      file_url: `${storageUrl}/files/${formattedFileName}`,
-      uploaded_at: new Date(),
+      uploadedBy: session.userId as string,
+      fileName: formattedFileName,
+      fileUrl: `${storageUrl}/files/${formattedFileName}`,
+      uploadedAt: new Date(),
     });
 
     return {

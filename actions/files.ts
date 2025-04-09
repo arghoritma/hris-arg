@@ -1,14 +1,16 @@
 "use server";
 
-import { db, files } from "@/services/db";
+import { db, schema } from "@/services/db";
 import { desc } from "drizzle-orm";
+
+const { files } = schema;
 
 export async function getFiles() {
   try {
     const fileList = await db
       .select()
       .from(files)
-      .orderBy(desc(files.uploaded_at));
+      .orderBy(desc(files.uploadedAt));
 
     return { success: true, data: fileList };
   } catch (error) {

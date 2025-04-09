@@ -1,9 +1,11 @@
 import "server-only";
 import { eq } from "drizzle-orm";
 import { SignJWT, jwtVerify } from "jose";
-import { db, sessions } from "@/services/db";
+import { db, schema } from "@/services/db";
 import { generateUUID } from "./helper";
 import { headers, cookies } from "next/headers";
+
+const { sessions } = schema;
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -35,18 +37,18 @@ export async function createSession(user_id: string) {
     .insert(sessions)
     .values({
       id: generateUUID(),
-      user_id: user_id,
+      userId: user_id,
       token: "",
       device: headersList.get("user-agent") || "",
-      ip_address:
+      ipAddress:
         headersList.get("x-forwarded-for") ||
         headersList.get("x-real-ip") ||
         "",
-      user_agent: headersList.get("user-agent") || "",
-      created_at: new Date(),
-      last_accessed: new Date(),
-      is_active: true,
-      expires_at: expiresAt,
+      userAgent: headersList.get("user-agent") || "",
+      createdAt: new Date(),
+      lastAccessed: new Date(),
+      isActive: true,
+      expiresAt: expiresAt,
     })
     .returning();
 
@@ -61,7 +63,6 @@ export async function createSession(user_id: string) {
     path: "/",
   });
 }
-
 export async function updateSession() {
   const session = (await cookies()).get("session")?.value;
   const payload = await decrypt(session);
@@ -89,7 +90,7 @@ export async function deleteSession() {
   if (session && payload) {
     await db
       .update(sessions)
-      .set({ is_active: false })
+      .set({ isActive: false })
       .where(eq(sessions.id, (payload as { id: string }).id));
   }
 

@@ -1,25 +1,109 @@
-Table users {
-  id varchar [pk]
+
+Enum UserRole {
+  user
+  admin
+  superadmin
+}
+
+Enum EmployeeStatus {
+  active
+  on_leave
+  terminated
+}
+
+Enum ContractType {
+  permanent
+  contract
+  probation
+}
+
+Enum ContractStatus {
+  active
+  expired
+  terminated
+}
+
+Enum AttendanceStatus {
+  present
+  late
+  absent
+  half_day
+}
+
+Enum LeaveType {
+  annual
+  sick
+  maternity
+  paternity
+  unpaid
+  other
+}
+
+Enum LeaveRequestStatus {
+  pending
+  approved
+  rejected
+}
+
+Enum EventType {
+  holiday
+  leave
+  meeting
+  deadline
+  other
+}
+
+Enum PaymentStatus {
+  pending
+  paid
+  cancelled
+}
+
+Enum EvaluationPeriod {
+  Q1
+  Q2
+  Q3
+  Q4
+  Annual
+}
+
+Enum EvaluationStatus {
+  draft
+  submitted
+  acknowledged
+}
+
+Enum NotificationType {
+  contract
+  leave
+  attendance
+  payroll
+  other
+}
+
+Table "users" {
+  id varchar [primary key]
   email varchar [unique, not null]
   name varchar [not null]
   phone varchar
-  password_has varchar [not null]
+  password_hash varchar [not null]
   avatar varchar
+  role UserRole [not null, default: 'user']
   created_at datetime [default: `CURRENT_TIMESTAMP`]
   updated_at datetime
 }
-
+// Files table
 Table files {
-  id varchar [pk]
+  id varchar [primary key]
   file_name varchar [not null]
   file_url varchar [not null]
   uploaded_by varchar [not null, ref: > users.id]
   uploaded_at datetime [default: `CURRENT_TIMESTAMP`]
 }
 
-
+// Sessions table
 Table sessions {
-  id varchar [pk]
+  id varchar [primary key]
   user_id varchar [not null, ref: > users.id]
   token varchar [not null]
   device varchar
@@ -29,4 +113,177 @@ Table sessions {
   created_at datetime [default: `CURRENT_TIMESTAMP`]
   last_accessed datetime [default: `CURRENT_TIMESTAMP`]
   expires_at datetime [not null]
+}
+
+// Departments table
+Table departments {
+  id varchar [primary key]
+  name varchar
+  description text
+  manager_id varchar [ref: > employees.id]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Positions/Job titles
+Table positions {
+  id varchar [primary key]
+  title varchar
+  description text
+  department_id varchar [ref: > departments.id]
+  salary_min decimal
+  salary_max decimal
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Employees table - core entity
+Table employees {
+  id varchar [primary key]
+  user_id varchar [ref: > users.id]
+  employee_id varchar [unique, note: 'Employee ID/Number']
+  first_name varchar
+  last_name varchar
+  email varchar [unique]
+  phone varchar
+  address text
+  birth_date date
+  hire_date date
+  department_id varchar [ref: > departments.id]
+  position_id varchar [ref: > positions.id]
+  manager_id varchar [ref: > employees.id, note: 'Self-reference to manager']
+  status EmployeeStatus
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Employee contracts
+Table contracts {
+  id varchar [primary key]
+  employee_id varchar [ref: > employees.id]
+  start_date date
+  end_date date
+  contract_type ContractType
+  salary decimal
+  benefits text
+  status ContractStatus
+  approved_by varchar [ref: > users.id]
+  approved_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Attendance records
+Table attendance {
+  id varchar [primary key]
+  employee_id varchar [ref: > employees.id]
+  date date
+  check_in timestamp
+  check_out timestamp
+  status AttendanceStatus
+  notes text
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Leave requests
+Table leave_requests {
+  id varchar [primary key]
+  employee_id varchar [ref: > employees.id]
+  leave_type LeaveType
+  start_date date
+  end_date date
+  duration integer [note: 'Number of days']
+  reason text
+  status LeaveRequestStatus
+  approved_by varchar [ref: > users.id]
+  approved_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Leave balances
+Table leave_balances {
+  id varchar [primary key]
+  employee_id varchar [ref: > employees.id]
+  leave_type LeaveType
+  year integer
+  total_days integer
+  used_days integer
+  remaining_days integer
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Calendar events
+Table calendar_events {
+  id varchar [primary key]
+  title varchar
+  description text
+  event_type EventType
+  start_date date
+  end_date date
+  start_time time
+  end_time time
+  all_day boolean
+  created_by varchar [ref: > users.id]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Payroll records
+Table payroll {
+  id varchar [primary key]
+  employee_id varchar [ref: > employees.id]
+  period_start date
+  period_end date
+  basic_salary decimal
+  allowances decimal
+  deductions decimal
+  tax decimal
+  net_salary decimal
+  payment_date date
+  payment_status PaymentStatus
+  created_by varchar [ref: > users.id]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Performance evaluations
+Table performance_evaluations {
+  id varchar [primary key]
+  employee_id varchar [ref: > employees.id]
+  evaluator_id varchar [ref: > users.id]
+  evaluation_period EvaluationPeriod
+  evaluation_year integer
+  productivity_score decimal
+  quality_score decimal
+  teamwork_score decimal
+  leadership_score decimal
+  overall_score decimal
+  comments text
+  status EvaluationStatus
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Notifications
+Table notifications {
+  id varchar [primary key]
+  user_id varchar [ref: > users.id]
+  title varchar
+  content text
+  type NotificationType
+  is_read boolean
+  created_at timestamp
+}
+
+// Many-to-many relationship between departments and employees
+Table department_employees {
+  id varchar [primary key]
+  department_id varchar [ref: > departments.id]
+  employee_id varchar [ref: > employees.id]
+  is_primary boolean
+  created_at timestamp
+  updated_at timestamp
 }

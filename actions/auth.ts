@@ -2,12 +2,14 @@
 
 import { FormState } from "@/libs/definitions";
 import { generateUUID } from "@/libs/helper";
-import { db, users } from "@/services/db";
+import { db, schema } from "@/services/db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { createSession, deleteSession } from "@/libs/sessions";
 import { redirect } from "next/navigation";
 import { GoogleSigninPayload } from "@/types";
+
+const { users } = schema;
 
 export async function signup(
   prev: FormState,
@@ -49,9 +51,10 @@ export async function signup(
       id: userId,
       email: email,
       name: name,
-      password_hash: await bcrypt.hash(password, 10),
-      created_at: new Date(),
-      updated_at: new Date(),
+      role: "user",
+      passwordHash: await bcrypt.hash(password, 10),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     await createSession(userId);
@@ -89,7 +92,6 @@ export async function signup(
     };
   }
 }
-
 export async function signin(
   prev: FormState,
   formData: FormData
@@ -120,7 +122,7 @@ export async function signin(
       };
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordMatch) {
       return {
@@ -160,9 +162,9 @@ export async function googleSignin(
         id: uid,
         email,
         name: name,
-        password_hash: uid,
-        created_at: new Date(),
-        updated_at: new Date(),
+        passwordHash: uid,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         avatar: Avatar,
       });
     }
@@ -179,7 +181,6 @@ export async function googleSignin(
     };
   }
 }
-
 export async function logout() {
   deleteSession();
   redirect("/auth/login");

@@ -4,7 +4,9 @@ import { eq } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { decrypt } from "@/libs/sessions";
 import { cache } from "react";
-import { db, sessions } from "@/services/db";
+import { db, schema } from "@/services/db";
+
+const { sessions } = schema;
 
 export const verifySession = cache(async () => {
   const header = (await headers()).get("X-User-Session");
@@ -20,7 +22,7 @@ export const verifySession = cache(async () => {
   }
 
   const user = await db
-    .select({ userId: sessions.user_id })
+    .select({ userId: sessions.userId })
     .from(sessions)
     .where(eq(sessions.id, session.id as string))
     .execute();

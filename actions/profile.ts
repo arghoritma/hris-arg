@@ -2,9 +2,11 @@
 
 import { verifySession } from "@/libs/dal";
 import { FormState, UserProp } from "@/libs/definitions";
-import { db, users } from "@/services/db";
+import { db, schema } from "@/services/db";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
+
+const { users } = schema;
 
 export async function updateProfile(
   prev: FormState,
